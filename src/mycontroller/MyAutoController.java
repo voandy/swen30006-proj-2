@@ -18,6 +18,7 @@ public class MyAutoController extends CarController{
 			FIND_WALL, // going straight until a wall is found
 			FIND_PARCEL, // sticking to a wall while looking for parcels
 			FIND_FINISH, // sticking to a wall while looking for finish
+			FIND_HEALTH,
 			GO_STRAIGHT
 		}
 		
@@ -29,7 +30,7 @@ public class MyAutoController extends CarController{
 		
 		public enum Obstacle {
 			WALL,
-			FIRE,
+			LAVA,
 			NONE
 		}
 		
@@ -78,7 +79,7 @@ public class MyAutoController extends CarController{
 		 * @param currentView what the car can currently see
 		 * @return
 		 */
-		public boolean checkWallAhead(WorldSpatial.Direction orientation, HashMap<Coordinate, MapTile> currentView){
+		public boolean checkObstacleAhead(WorldSpatial.Direction orientation, HashMap<Coordinate, MapTile> currentView){
 			switch(orientation){
 			case EAST:
 				return checkEast(currentView) == Obstacle.WALL;
@@ -328,6 +329,10 @@ public class MyAutoController extends CarController{
 				MapTile tile = currentView.get(new Coordinate(currentPosition.x+i, currentPosition.y));
 				if(tile.isType(MapTile.Type.WALL)){
 					return Obstacle.WALL;
+				} else if (tile.isType(MapTile.Type.TRAP)) {
+					if (((TrapTile) tile).getTrap() == "lava") {
+						return Obstacle.LAVA;
+					}
 				}
 			}
 			return Obstacle.NONE;
@@ -340,6 +345,10 @@ public class MyAutoController extends CarController{
 				MapTile tile = currentView.get(new Coordinate(currentPosition.x-i, currentPosition.y));
 				if(tile.isType(MapTile.Type.WALL)){
 					return Obstacle.WALL;
+				} else if (tile.isType(MapTile.Type.TRAP)) {
+					if (((TrapTile) tile).getTrap() == "lava") {
+						return Obstacle.LAVA;
+					}
 				}
 			}
 			return Obstacle.NONE;
@@ -352,6 +361,10 @@ public class MyAutoController extends CarController{
 				MapTile tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y+i));
 				if(tile.isType(MapTile.Type.WALL)){
 					return Obstacle.WALL;
+				} else if (tile.isType(MapTile.Type.TRAP)) {
+					if (((TrapTile) tile).getTrap() == "lava") {
+						return Obstacle.LAVA;
+					}
 				}
 			}
 			return Obstacle.NONE;
@@ -364,6 +377,10 @@ public class MyAutoController extends CarController{
 				MapTile tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y-i));
 				if(tile.isType(MapTile.Type.WALL)){
 					return Obstacle.WALL;
+				} else if (tile.isType(MapTile.Type.TRAP)) {
+					if (((TrapTile) tile).getTrap() == "lava") {
+						return Obstacle.LAVA;
+					}
 				}
 			}
 			return Obstacle.NONE;

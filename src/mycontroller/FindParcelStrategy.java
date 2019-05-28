@@ -33,7 +33,7 @@ public class FindParcelStrategy implements IDriveStrategy {
 				autoctrl.turnLeft();
 			} else {
 				// If wall on left and wall straight ahead, turn right
-				if(autoctrl.checkWallAhead(autoctrl.getOrientation(), currentView)) {
+				if(autoctrl.checkObstacleAhead(autoctrl.getOrientation(), currentView)) {
 					autoctrl.turnRight();
 				}
 			}

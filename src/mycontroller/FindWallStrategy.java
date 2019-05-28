@@ -44,7 +44,7 @@ public class FindWallStrategy implements IDriveStrategy {
 		}
 		
 		// Start wall-following (with wall on left) as soon as we see a wall straight ahead
-		if(autoctrl.checkWallAhead(autoctrl.getOrientation(),currentView)) {
+		if(autoctrl.checkObstacleAhead(autoctrl.getOrientation(),currentView)) {
 			// found wall ahead
 			if (autoctrl.checkWallRight(autoctrl.getOrientation(),currentView)) {
 				// can't turn right, turn left and try to find another wall
@@ -52,6 +52,8 @@ public class FindWallStrategy implements IDriveStrategy {
 			} else {
 				// store position where we found the wall.
 				autoctrl.foundWallCoord = new Coordinate(autoctrl.getPosition());
+				// turn right and follow wall
+				autoctrl.turnRight();
 				if (autoctrl.numParcelsFound() == autoctrl.numParcels()) {
 					autoctrl.currState = State.FIND_FINISH;
 				} else {
