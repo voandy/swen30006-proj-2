@@ -14,11 +14,11 @@ public class FindFinishStrategy implements IDriveStrategy {
 		// Gets what the car can see
 		HashMap<Coordinate, MapTile> currentView = autoctrl.getView();
 		
-		if (autoctrl.checkLeft(autoctrl.getOrientation(), currentView) == Goal.FINISH) {
+		if (autoctrl.checkGoalLeft(autoctrl.getOrientation(), currentView) == Goal.FINISH) {
 			// If there is a parcel to the left turn to get it
 			autoctrl.turnLeft();
 			autoctrl.currState = State.GO_STRAIGHT;
-		} else if (autoctrl.checkRight(autoctrl.getOrientation(), currentView) == Goal.FINISH) {
+		} else if (autoctrl.checkGoalRight(autoctrl.getOrientation(), currentView) == Goal.FINISH) {
 			// If there is a parcel to the right turn to get it
 			autoctrl.turnRight();
 			autoctrl.currState = State.GO_STRAIGHT;

@@ -27,11 +27,17 @@ public class MyAutoController extends CarController{
 			NONE
 		}
 		
+		public enum Obstacle {
+			WALL,
+			FIRE,
+			NONE
+		}
+		
 		public State currState;
-		public Goal goal;
 		
 		DriveStrategyFactory strategyFactory = new DriveStrategyFactory();
 		
+		public Coordinate foundWallCoord = new Coordinate(getPosition());
 		
 		// Car Speed to move at
 		public final int CAR_MAX_SPEED = 1;
@@ -45,6 +51,8 @@ public class MyAutoController extends CarController{
 		// boolean notSouth = true;
 		@Override
 		public void update() {
+			System.out.println(currState.toString());
+			
 			switch (currState) {
 			case FIND_WALL:
 				IDriveStrategy findWallStrategy = strategyFactory.getDriveStrategy("find-wall");
@@ -73,13 +81,13 @@ public class MyAutoController extends CarController{
 		public boolean checkWallAhead(WorldSpatial.Direction orientation, HashMap<Coordinate, MapTile> currentView){
 			switch(orientation){
 			case EAST:
-				return checkEast(currentView);
+				return checkEast(currentView) == Obstacle.WALL;
 			case NORTH:
-				return checkNorth(currentView);
+				return checkNorth(currentView) == Obstacle.WALL;
 			case SOUTH:
-				return checkSouth(currentView);
+				return checkSouth(currentView) == Obstacle.WALL;
 			case WEST:
-				return checkWest(currentView);
+				return checkWest(currentView) == Obstacle.WALL;
 			default:
 				return false;
 			}
@@ -94,16 +102,55 @@ public class MyAutoController extends CarController{
 		public boolean checkFollowingWall(WorldSpatial.Direction orientation, HashMap<Coordinate, MapTile> currentView) {
 			switch(orientation){
 			case EAST:
-				return checkNorth(currentView);
+				return checkNorth(currentView) == Obstacle.WALL;
 			case NORTH:
-				return checkWest(currentView);
+				return checkWest(currentView) == Obstacle.WALL;
 			case SOUTH:
-				return checkEast(currentView);
+				return checkEast(currentView) == Obstacle.WALL;
 			case WEST:
-				return checkSouth(currentView);
+				return checkSouth(currentView) == Obstacle.WALL;
 			default:
 				return false;
 			}	
+		}
+		
+		// Checks if there is a wall to the immediate right of the car
+		public boolean checkWallRight(WorldSpatial.Direction orientation, HashMap<Coordinate, MapTile> currentView) {
+			Coordinate currentPosition = new Coordinate(getPosition());
+			MapTile tile;
+			
+			switch(orientation){
+			case EAST:
+				// Car is facing East, check South
+				tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y-1));
+				if(tile.isType(MapTile.Type.WALL)){
+					return true;
+				}
+				return false;
+			case NORTH:
+				// Car is facing North, check East
+				tile = currentView.get(new Coordinate(currentPosition.x+1, currentPosition.y));
+				if(tile.isType(MapTile.Type.WALL)){
+					return true;
+				}
+				return false;
+			case SOUTH:
+				// Car is facing South, check West
+				tile = currentView.get(new Coordinate(currentPosition.x-1, currentPosition.y));
+				if(tile.isType(MapTile.Type.WALL)){
+					return true;
+				}
+				return false;
+			case WEST:
+				// Car is facing West, check North
+				tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y+1));
+				if(tile.isType(MapTile.Type.WALL)){
+					return true;
+				}
+				return false;
+			default:
+				return false;
+			}
 		}
 		
 		/**
@@ -112,14 +159,15 @@ public class MyAutoController extends CarController{
 		 * @param currentView what the car can currently see
 		 * @return
 		 */
-		public Goal checkLeft(WorldSpatial.Direction orientation, HashMap<Coordinate, MapTile> currentView) {
+		public Goal checkGoalLeft(WorldSpatial.Direction orientation, HashMap<Coordinate, MapTile> currentView) {
 			Coordinate currentPosition = new Coordinate(getPosition());
+			MapTile tile;
 			
 			switch(orientation){
 			case EAST:
 				// car facing East, check North for parcel
 				for(int i = 0; i <= Car.VIEW_SQUARE; i++){
-					MapTile tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y+i));
+					tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y+i));
 					// there is a wall in the way
 					if(tile.isType(MapTile.Type.WALL)){
 						return Goal.NONE;
@@ -135,7 +183,7 @@ public class MyAutoController extends CarController{
 			case NORTH:
 				// car facing North, check West for parcel
 				for(int i = 0; i <= Car.VIEW_SQUARE; i++){
-					MapTile tile = currentView.get(new Coordinate(currentPosition.x-i, currentPosition.y));
+					tile = currentView.get(new Coordinate(currentPosition.x-i, currentPosition.y));
 					// there is a wall in the way
 					if(tile.isType(MapTile.Type.WALL)){
 						return Goal.NONE;
@@ -151,7 +199,7 @@ public class MyAutoController extends CarController{
 			case SOUTH:
 				// car facing South, check East for parcel
 				for(int i = 0; i <= Car.VIEW_SQUARE; i++){
-					MapTile tile = currentView.get(new Coordinate(currentPosition.x+i, currentPosition.y));
+					tile = currentView.get(new Coordinate(currentPosition.x+i, currentPosition.y));
 					// there is a wall in the way
 					if(tile.isType(MapTile.Type.WALL)){
 						return Goal.NONE;
@@ -167,7 +215,7 @@ public class MyAutoController extends CarController{
 			case WEST:
 				// car facing West, check South for parcel
 				for(int i = 0; i <= Car.VIEW_SQUARE; i++){
-					MapTile tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y-i));
+					tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y-i));
 					// there is a wall in the way
 					if(tile.isType(MapTile.Type.WALL)){
 						return Goal.NONE;
@@ -191,14 +239,15 @@ public class MyAutoController extends CarController{
 		 * @param currentView what the car can currently see
 		 * @return
 		 */
-		public Goal checkRight(WorldSpatial.Direction orientation, HashMap<Coordinate, MapTile> currentView) {
+		public Goal checkGoalRight(WorldSpatial.Direction orientation, HashMap<Coordinate, MapTile> currentView) {
 			Coordinate currentPosition = new Coordinate(getPosition());
+			MapTile tile;
 			
 			switch(orientation){
 			case EAST:
 				// car facing East, check South for parcel
 				for(int i = 0; i <= Car.VIEW_SQUARE; i++){
-					MapTile tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y-i));
+					tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y-i));
 					// there is a wall in the way
 					if(tile.isType(MapTile.Type.WALL)){
 						return Goal.NONE;
@@ -214,7 +263,7 @@ public class MyAutoController extends CarController{
 			case NORTH:
 				// car facing North, check East for parcel
 				for(int i = 0; i <= Car.VIEW_SQUARE; i++){
-					MapTile tile = currentView.get(new Coordinate(currentPosition.x+i, currentPosition.y));
+					tile = currentView.get(new Coordinate(currentPosition.x+i, currentPosition.y));
 					// there is a wall in the way
 					if(tile.isType(MapTile.Type.WALL)){
 						return Goal.NONE;
@@ -230,7 +279,7 @@ public class MyAutoController extends CarController{
 			case SOUTH:
 				// car facing South, check West for parcel
 				for(int i = 0; i <= Car.VIEW_SQUARE; i++){
-					MapTile tile = currentView.get(new Coordinate(currentPosition.x-i, currentPosition.y));
+					tile = currentView.get(new Coordinate(currentPosition.x-i, currentPosition.y));
 					// there is a wall in the way
 					if(tile.isType(MapTile.Type.WALL)){
 						return Goal.NONE;
@@ -246,7 +295,7 @@ public class MyAutoController extends CarController{
 			case WEST:
 				// car facing West, check North for parcel
 				for(int i = 0; i <= Car.VIEW_SQUARE; i++){
-					MapTile tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y+i));
+					tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y+i));
 					// there is a wall in the way
 					if(tile.isType(MapTile.Type.WALL)){
 						return Goal.NONE;
@@ -272,52 +321,52 @@ public class MyAutoController extends CarController{
 		 * checkNorth will check up to wallSensitivity amount of tiles to the top.
 		 * checkSouth will check up to wallSensitivity amount of tiles below.
 		 */
-		public boolean checkEast(HashMap<Coordinate, MapTile> currentView){
+		public Obstacle checkEast(HashMap<Coordinate, MapTile> currentView){
 			// Check tiles to my right
 			Coordinate currentPosition = new Coordinate(getPosition());
 			for(int i = 0; i <= wallSensitivity; i++){
 				MapTile tile = currentView.get(new Coordinate(currentPosition.x+i, currentPosition.y));
 				if(tile.isType(MapTile.Type.WALL)){
-					return true;
+					return Obstacle.WALL;
 				}
 			}
-			return false;
+			return Obstacle.NONE;
 		}
 		
-		public boolean checkWest(HashMap<Coordinate,MapTile> currentView){
+		public Obstacle checkWest(HashMap<Coordinate,MapTile> currentView){
 			// Check tiles to my left
 			Coordinate currentPosition = new Coordinate(getPosition());
 			for(int i = 0; i <= wallSensitivity; i++){
 				MapTile tile = currentView.get(new Coordinate(currentPosition.x-i, currentPosition.y));
 				if(tile.isType(MapTile.Type.WALL)){
-					return true;
+					return Obstacle.WALL;
 				}
 			}
-			return false;
+			return Obstacle.NONE;
 		}
 		
-		public boolean checkNorth(HashMap<Coordinate,MapTile> currentView){
+		public Obstacle checkNorth(HashMap<Coordinate,MapTile> currentView){
 			// Check tiles to towards the top
 			Coordinate currentPosition = new Coordinate(getPosition());
 			for(int i = 0; i <= wallSensitivity; i++){
 				MapTile tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y+i));
 				if(tile.isType(MapTile.Type.WALL)){
-					return true;
+					return Obstacle.WALL;
 				}
 			}
-			return false;
+			return Obstacle.NONE;
 		}
 		
-		public boolean checkSouth(HashMap<Coordinate,MapTile> currentView){
+		public Obstacle checkSouth(HashMap<Coordinate,MapTile> currentView){
 			// Check tiles towards the bottom
 			Coordinate currentPosition = new Coordinate(getPosition());
 			for(int i = 0; i <= wallSensitivity; i++){
 				MapTile tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y-i));
 				if(tile.isType(MapTile.Type.WALL)){
-					return true;
+					return Obstacle.WALL;
 				}
 			}
-			return false;
+			return Obstacle.NONE;
 		}
 		
 	}

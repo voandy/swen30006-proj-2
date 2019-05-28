@@ -13,18 +13,23 @@ public class FindParcelStrategy implements IDriveStrategy {
 	public void drive(MyAutoController autoctrl) {
 		// Gets what the car can see
 		HashMap<Coordinate, MapTile> currentView = autoctrl.getView();
+		Coordinate currentPosition = new Coordinate(autoctrl.getPosition());
 		
-		if (autoctrl.checkLeft(autoctrl.getOrientation(), currentView) == Goal.PARCEL) {
+		if (autoctrl.checkGoalLeft(autoctrl.getOrientation(), currentView) == Goal.PARCEL) {
 			// If there is a parcel to the left turn to get it
 			autoctrl.turnLeft();
 			autoctrl.currState = State.FIND_WALL;
-		} else if (autoctrl.checkRight(autoctrl.getOrientation(), currentView) == Goal.PARCEL) {
+		} else if (autoctrl.checkGoalRight(autoctrl.getOrientation(), currentView) == Goal.PARCEL) {
 			// If there is a parcel to the right turn to get it
 			autoctrl.turnRight();
 			autoctrl.currState = State.FIND_WALL;
 		} else {
-			// If wall no longer on left, turn left
-			if(!autoctrl.checkFollowingWall(autoctrl.getOrientation(), currentView)) {
+			if (currentPosition.equals(autoctrl.foundWallCoord)) {
+				// we've done a complete circle, turn right to find a new wall
+				autoctrl.turnRight();
+				autoctrl.currState = State.FIND_WALL;
+			} else if(!autoctrl.checkFollowingWall(autoctrl.getOrientation(), currentView)) {
+				// If wall no longer on left, turn left
 				autoctrl.turnLeft();
 			} else {
 				// If wall on left and wall straight ahead, turn right
@@ -32,6 +37,10 @@ public class FindParcelStrategy implements IDriveStrategy {
 					autoctrl.turnRight();
 				}
 			}
+		}
+		
+		if (autoctrl.numParcelsFound() == autoctrl.numParcels()) {
+			autoctrl.currState = State.FIND_FINISH;
 		}
 	}
 }
