@@ -8,9 +8,11 @@ public class DriveStrategyFactory {
 		case "find-wall":
 			drivingStrategy = new FindWallStrategy();
 			break;
-		case "follow-wall":
-			drivingStrategy = new FollowWallStrategy();
+		case "find-parcel":
+			drivingStrategy = new FindParcelStrategy();
 			break;
+		case "find-finish":
+			drivingStrategy = new FindFinishStrategy();
 		}
 		return drivingStrategy;
 	}
