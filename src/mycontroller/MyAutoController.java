@@ -109,10 +109,15 @@ public class MyAutoController extends CarController{
 			case SOUTH:
 				return checkEast(currentView) == Obstacle.WALL;
 			case WEST:
-				return checkSouth(currentView) == Obstacle.WALL;
+				System.out.println("THERE!!!");
+				if (checkSouth(currentView) == Obstacle.WALL) {
+					return true;
+				}
+				System.out.println("FALSE!!!");
+				return false;
 			default:
 				return false;
-			}	
+			}
 		}
 		
 		// Checks if there is a wall to the immediate right of the car
@@ -329,10 +334,6 @@ public class MyAutoController extends CarController{
 				MapTile tile = currentView.get(new Coordinate(currentPosition.x+i, currentPosition.y));
 				if(tile.isType(MapTile.Type.WALL)){
 					return Obstacle.WALL;
-				} else if (tile.isType(MapTile.Type.TRAP)) {
-					if (((TrapTile) tile).getTrap() == "lava") {
-						return Obstacle.LAVA;
-					}
 				}
 			}
 			return Obstacle.NONE;
@@ -345,10 +346,6 @@ public class MyAutoController extends CarController{
 				MapTile tile = currentView.get(new Coordinate(currentPosition.x-i, currentPosition.y));
 				if(tile.isType(MapTile.Type.WALL)){
 					return Obstacle.WALL;
-				} else if (tile.isType(MapTile.Type.TRAP)) {
-					if (((TrapTile) tile).getTrap() == "lava") {
-						return Obstacle.LAVA;
-					}
 				}
 			}
 			return Obstacle.NONE;
@@ -361,10 +358,6 @@ public class MyAutoController extends CarController{
 				MapTile tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y+i));
 				if(tile.isType(MapTile.Type.WALL)){
 					return Obstacle.WALL;
-				} else if (tile.isType(MapTile.Type.TRAP)) {
-					if (((TrapTile) tile).getTrap() == "lava") {
-						return Obstacle.LAVA;
-					}
 				}
 			}
 			return Obstacle.NONE;
@@ -375,12 +368,9 @@ public class MyAutoController extends CarController{
 			Coordinate currentPosition = new Coordinate(getPosition());
 			for(int i = 0; i <= wallSensitivity; i++){
 				MapTile tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y-i));
+				System.out.println(tile.getType());
 				if(tile.isType(MapTile.Type.WALL)){
 					return Obstacle.WALL;
-				} else if (tile.isType(MapTile.Type.TRAP)) {
-					if (((TrapTile) tile).getTrap() == "lava") {
-						return Obstacle.LAVA;
-					}
 				}
 			}
 			return Obstacle.NONE;

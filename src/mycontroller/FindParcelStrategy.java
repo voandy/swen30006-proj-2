@@ -38,7 +38,6 @@ public class FindParcelStrategy implements IDriveStrategy {
 				}
 			}
 		}
-		
 		if (autoctrl.numParcelsFound() == autoctrl.numParcels()) {
 			autoctrl.currState = State.FIND_FINISH;
 		}

@@ -28,15 +28,18 @@ public class FindWallStrategy implements IDriveStrategy {
 		}
 		
 		// Already following wall
-		if(autoctrl.checkFollowingWall(autoctrl.getOrientation(), currentView)) {
-			autoctrl.foundWallCoord = new Coordinate(autoctrl.getPosition());
-			if (autoctrl.numParcelsFound() == autoctrl.numParcels()) {
-				autoctrl.currState = State.FIND_FINISH;
-			} else {
-				autoctrl.currState = State.FIND_PARCEL;
-			}
-			return;
-		}
+//		if(autoctrl.checkFollowingWall(autoctrl.getOrientation(), currentView)) {
+//			autoctrl.foundWallCoord = new Coordinate(autoctrl.getPosition());
+//			
+//			// check wall left
+//			
+//			if (autoctrl.numParcelsFound() == autoctrl.numParcels()) {
+//				autoctrl.currState = State.FIND_FINISH;
+//			} else {
+//				autoctrl.currState = State.FIND_PARCEL;
+//			}
+//			return;
+//		}
 					
 		// checkStateChange();
 		if(autoctrl.getSpeed() < autoctrl.CAR_MAX_SPEED){       // Need speed to turn and progress toward the exit
