@@ -1,6 +1,7 @@
 package mycontroller;
 
 import controller.CarController;
+import swen30006.driving.Simulation;
 import world.Car;
 import java.util.HashMap;
 
@@ -30,8 +31,12 @@ public class MyAutoController extends CarController{
 		
 		private boolean avoidLava = false;
 		private boolean avoidHealth = false;
+		private Simulation.StrategyMode strategyMode = Simulation.StrategyMode.FUEL;
 				
 		public State currState;
+		private float initialFuel;
+		private float currFuel;
+		private float fuelThreshold;
 		
 		DriveStrategyFactory strategyFactory = new DriveStrategyFactory();
 		
@@ -43,12 +48,25 @@ public class MyAutoController extends CarController{
 		public MyAutoController(Car car) {
 			super(car);
 			currState = State.FIND_WALL;
-//			
-//			if (Simulation.toConserve() == Simulation.StrategyMode.FUEL) {
-//				throw new UnsupportedModeException();
-//			}
 			
+			strategyMode = Simulation.toConserve();
 			
+			switch (strategyMode) {
+			case FUEL:
+				// in fuel conservation mode we start by ignoring all lava and health traps
+				avoidLava = false;
+				avoidHealth = false;
+				break;
+			case HEALTH:
+				// in fuel conservation mode we start by ignoring lava and avoiding health traps
+				avoidLava = false;
+				avoidHealth = true;
+				break;
+			}
+			
+			initialFuel = car.getFuel();
+			currFuel = car.getFuel();
+			fuelThreshold = initialFuel / 2;
 		}
 		
 		// Coordinate initialGuess;
@@ -56,6 +74,30 @@ public class MyAutoController extends CarController{
 		@Override
 		public void update() {
 			System.out.println(currState.toString());
+			
+			switch (strategyMode) {
+			case FUEL:
+				// running low on health, will avoid lava
+				if (getHealth() <= 10) {
+					avoidLava = true;
+				} else if (getHealth() <= 30) {
+					avoidLava = false;
+				}
+				break;
+			case HEALTH:
+				// running low on health, will avoid lava
+				if (getHealth() <= 10) {
+					avoidLava = true;
+				} else if (getHealth() <= 30) {
+					avoidLava = false;
+				}
+				
+				// running low on fuel. better to go through health traps and complete map
+				if (currFuel < fuelThreshold) {
+					avoidHealth = false;
+				}
+				break;
+			}
 			
 			switch (currState) {
 			case FIND_WALL:
@@ -78,6 +120,8 @@ public class MyAutoController extends CarController{
 				// ignore everything and just go straight
 				break;
 			}
+			
+			currFuel -= 1;
 		}
 		
 		// returns the new orientation after turning because this doesn't update during the current cycle apparently
