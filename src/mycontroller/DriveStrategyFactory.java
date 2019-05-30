@@ -1,10 +1,11 @@
 package mycontroller;
 
 public class DriveStrategyFactory {
-	private IDriveStrategy driveStrategy = null;
-	private CompositeDriveStrategy compositeStrategy = null;
 	
 	public IDriveStrategy getDriveStrategy(String strategyName) {
+		IDriveStrategy driveStrategy = null;
+		CompositeDriveStrategy compositeStrategy = null;
+		
 		switch (strategyName) {
 		case "find-wall":
 			driveStrategy = new FindWallStrategy();

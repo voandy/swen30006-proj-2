@@ -13,6 +13,19 @@ public class FollowWallStrategy implements IDriveStrategy {
 		HashMap<Coordinate, MapTile> currentView = autoctrl.getView();
 		Coordinate currentPosition = new Coordinate(autoctrl.getPosition());
 		
+		/* Experimental healing strategy */
+//		MapTile tile = currentView.get(new Coordinate(autoctrl.getPosition()));
+//		if (autoctrl.strategyMode == Simulation.StrategyMode.FUEL && autoctrl.getHealth() < 300) {
+//			if(tile.isType(MapTile.Type.TRAP)){
+//				if (((TrapTile)tile).getTrap() == "health") {
+//					autoctrl.applyBrake();
+//					return false;
+//				}
+//			}
+//		} else {
+//			autoctrl.applyForwardAcceleration();
+//		}
+		
 		if (currentPosition.equals(autoctrl.foundWallCoord)) {
 			// we've done a complete circle, turn right to find a new wall
 			autoctrl.turnRight();

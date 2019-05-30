@@ -6,6 +6,7 @@ import mycontroller.MyAutoController.Goal;
 import mycontroller.MyAutoController.State;
 import tiles.MapTile;
 import utilities.Coordinate;
+import world.WorldSpatial;
 
 public class FindParcelStrategy implements IDriveStrategy {
 
@@ -15,15 +16,33 @@ public class FindParcelStrategy implements IDriveStrategy {
 		HashMap<Coordinate, MapTile> currentView = autoctrl.getView();
 		
 		if (autoctrl.checkGoalLeft(autoctrl.getOrientation(), currentView) == Goal.PARCEL) {
-			// If there is a parcel to the left turn to get it
+			// If there is a parcel to the left turn to get it and get new orientation after turning;
+			WorldSpatial.Direction newOrientation = autoctrl.newOrientation(autoctrl.getOrientation(), WorldSpatial.RelativeDirection.LEFT);
 			autoctrl.turnLeft();
-			autoctrl.currState = State.GET_PARCEL;
-			return true;
+
+			if (autoctrl.checkParcelAhead(newOrientation, currentView)) {
+				// if there is a parcel directly ahead after turning go into find wall mode
+				autoctrl.currState = State.FIND_WALL;
+				return true;
+			} else {
+				// otherwise go into get parcel mode
+				autoctrl.currState = State.GET_PARCEL;
+				return true;
+			}
 		} else if (autoctrl.checkGoalRight(autoctrl.getOrientation(), currentView) == Goal.PARCEL) {
-			// If there is a parcel to the right turn to get it
+			// If there is a parcel to the right turn to get it and get new orientation after turning;
+			WorldSpatial.Direction newOrientation = autoctrl.newOrientation(autoctrl.getOrientation(), WorldSpatial.RelativeDirection.RIGHT);
 			autoctrl.turnRight();
-			autoctrl.currState = State.GET_PARCEL;
-			return true;
+
+			if (autoctrl.checkParcelAhead(newOrientation, currentView)) {
+				// if there is a parcel directly ahead after turning go into find wall mode
+				autoctrl.currState = State.FIND_WALL;
+				return true;
+			} else {
+				// otherwise go into get parcel mode
+				autoctrl.currState = State.GET_PARCEL;
+				return true;
+			}
 		}
 		
 		return false;

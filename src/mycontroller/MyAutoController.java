@@ -31,7 +31,7 @@ public class MyAutoController extends CarController{
 		
 		private boolean avoidLava = false;
 		private boolean avoidHealth = false;
-		private Simulation.StrategyMode strategyMode = Simulation.StrategyMode.FUEL;
+		public Simulation.StrategyMode strategyMode = Simulation.StrategyMode.FUEL;
 				
 		public State currState;
 		private float initialFuel;
@@ -58,7 +58,7 @@ public class MyAutoController extends CarController{
 				avoidHealth = false;
 				break;
 			case HEALTH:
-				// in fuel conservation mode we start by ignoring lava and avoiding health traps
+				// in fuel conservation mode we start by avoiding all lava and health traps
 				avoidLava = false;
 				avoidHealth = true;
 				break;
@@ -75,28 +75,35 @@ public class MyAutoController extends CarController{
 		public void update() {
 			System.out.println(currState.toString());
 			
-			switch (strategyMode) {
-			case FUEL:
-				// running low on health, will avoid lava
-				if (getHealth() <= 10) {
-					avoidLava = true;
-				} else if (getHealth() <= 30) {
-					avoidLava = false;
+			Coordinate currentPosition = new Coordinate(getPosition());
+			MapTile tile = getView().get(new Coordinate(currentPosition.x, currentPosition.y));
+			
+			// to avoid loops, do not change mode when on trap tiles
+			if (!onTrap(tile)) {
+				switch (strategyMode) {
+				case FUEL:
+					// running low on health, will avoid lava
+					if (getHealth() <= 30) {
+						avoidLava = true;
+					} else if (getHealth() >= 100) {
+						avoidLava = false;
+					}
+					break;
+				case HEALTH:
+					// running low on health, will avoid lava
+					if (getHealth() <= 30) {
+						avoidLava = true;
+					} else if (getHealth() >= 100) {
+						avoidLava = false;
+					}
+					
+					// running low on fuel. better to go through any traps and complete map
+					if (currFuel < fuelThreshold) {
+						avoidHealth = false;
+						avoidLava = false;
+					}
+					break;
 				}
-				break;
-			case HEALTH:
-				// running low on health, will avoid lava
-				if (getHealth() <= 10) {
-					avoidLava = true;
-				} else if (getHealth() <= 30) {
-					avoidLava = false;
-				}
-				
-				// running low on fuel. better to go through health traps and complete map
-				if (currFuel < fuelThreshold) {
-					avoidHealth = false;
-				}
-				break;
 			}
 			
 			switch (currState) {
@@ -124,7 +131,7 @@ public class MyAutoController extends CarController{
 			currFuel -= 1;
 		}
 		
-		// returns the new orientation after turning because this doesn't update during the current cycle apparently
+		// returns the new orientation after turning because this doesn't update during the current cycle
 		public WorldSpatial.Direction newOrientation(WorldSpatial.Direction initialOrientation, WorldSpatial.RelativeDirection turn){
 			switch(turn) {
 			case LEFT:
@@ -411,6 +418,16 @@ public class MyAutoController extends CarController{
 			}	
 		}
 		
+		private boolean onTrap(MapTile tile) {
+			if(tile.isType(MapTile.Type.TRAP)){
+				String trap = ((TrapTile)tile).getTrap();
+				if (trap == "lava" || trap == "health" || trap == "water") {
+					return true;
+				}
+			}
+			return false;
+		}
+		
 		// returns true if the given tile is a wall or obstacle.
 		private boolean checkTile(MapTile tile) {
 			if(tile.isType(MapTile.Type.WALL)){
@@ -454,6 +471,14 @@ public class MyAutoController extends CarController{
 				MapTile tile = currentView.get(new Coordinate(currentPosition.x+i, currentPosition.y));
 				if(checkTile(tile)){
 					return true;
+				} else {
+					// Dead end, do not go there
+					MapTile tileEastEast = currentView.get(new Coordinate(currentPosition.x+i+1, currentPosition.y));
+					MapTile tileEastNorth = currentView.get(new Coordinate(currentPosition.x+i, currentPosition.y+1));
+					MapTile tileEastSouth = currentView.get(new Coordinate(currentPosition.x+i, currentPosition.y-1));
+					if (checkTile(tileEastEast) && checkTile(tileEastNorth) && checkTile(tileEastSouth)) {
+						return true;
+					}
 				}
 			}
 			return false;
@@ -466,6 +491,14 @@ public class MyAutoController extends CarController{
 				MapTile tile = currentView.get(new Coordinate(currentPosition.x-i, currentPosition.y));
 				if(checkTile(tile)){
 					return true;
+				} else {
+					// Dead end, do not go there
+					MapTile tileWestWest = currentView.get(new Coordinate(currentPosition.x-i-1, currentPosition.y));
+					MapTile tileWestNorth = currentView.get(new Coordinate(currentPosition.x-i, currentPosition.y+1));
+					MapTile tileWestSouth = currentView.get(new Coordinate(currentPosition.x-i, currentPosition.y-1));
+					if (checkTile(tileWestWest) && checkTile(tileWestNorth) && checkTile(tileWestSouth)) {
+						return true;
+					}
 				}
 			}
 			return false;
@@ -478,6 +511,14 @@ public class MyAutoController extends CarController{
 				MapTile tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y+i));
 				if(checkTile(tile)){
 					return true;
+				} else {
+					// Dead end, do not go there
+					MapTile tileNorthNorth = currentView.get(new Coordinate(currentPosition.x, currentPosition.y+i+1));
+					MapTile tileNorthWest = currentView.get(new Coordinate(currentPosition.x-1, currentPosition.y+i));
+					MapTile tileNorthEast = currentView.get(new Coordinate(currentPosition.x+1, currentPosition.y+i));
+					if (checkTile(tileNorthNorth) && checkTile(tileNorthWest) && checkTile(tileNorthEast)) {
+						return true;
+					}
 				}
 			}
 			return false;
@@ -491,6 +532,14 @@ public class MyAutoController extends CarController{
 				System.out.println(tile.getType());
 				if(checkTile(tile)){
 					return true;
+				} else {
+					// Dead end, do not go there
+					MapTile tileSouthSouth = currentView.get(new Coordinate(currentPosition.x, currentPosition.y-i-1));
+					MapTile tileSouthWest = currentView.get(new Coordinate(currentPosition.x-1, currentPosition.y-i));
+					MapTile tileSouthEast = currentView.get(new Coordinate(currentPosition.x+1, currentPosition.y-i));
+					if (checkTile(tileSouthSouth) && checkTile(tileSouthWest) && checkTile(tileSouthEast)) {
+						return true;
+					}
 				}
 			}
 			return false;
