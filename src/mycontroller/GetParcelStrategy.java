@@ -10,13 +10,15 @@ public class GetParcelStrategy implements IDriveStrategy {
 
 	@Override
 	// goes straight until a parcel is picked up then finds wall
-	public void drive(MyAutoController autoctrl) {
+	public boolean drive(MyAutoController autoctrl) {
 		HashMap<Coordinate, MapTile> currentView = autoctrl.getView();
 		
 		if (autoctrl.checkParcelAhead(autoctrl.getOrientation(), currentView)) {
 			autoctrl.currState = State.FIND_WALL;
-			return;
+			return true;
 		}
+		
+		return false;
 	}
 
 }

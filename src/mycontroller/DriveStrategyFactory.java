@@ -1,23 +1,30 @@
 package mycontroller;
 
 public class DriveStrategyFactory {
-	private IDriveStrategy drivingStrategy = null;
+	private IDriveStrategy driveStrategy = null;
+	private CompositeDriveStrategy compositeStrategy = null;
 	
 	public IDriveStrategy getDriveStrategy(String strategyName) {
 		switch (strategyName) {
 		case "find-wall":
-			drivingStrategy = new FindWallStrategy();
+			driveStrategy = new FindWallStrategy();
 			break;
 		case "find-parcel":
-			drivingStrategy = new FindParcelStrategy();
+			compositeStrategy = new CompositeDriveStrategy();
+			compositeStrategy.add(new FindParcelStrategy());
+			compositeStrategy.add(new FollowWallStrategy());
+			driveStrategy = compositeStrategy;
 			break;
 		case "get-parcel":
-			drivingStrategy = new GetParcelStrategy();
+			driveStrategy = new GetParcelStrategy();
 			break;
 		case "find-finish":
-			drivingStrategy = new FindFinishStrategy();
+			compositeStrategy = new CompositeDriveStrategy();
+			compositeStrategy.add(new FindFinishStrategy());
+			compositeStrategy.add(new FollowWallStrategy());
+			driveStrategy = compositeStrategy;
 			break;
 		}
-		return drivingStrategy;
+		return driveStrategy;
 	}
 }

@@ -11,7 +11,7 @@ import world.WorldSpatial;
 public class FindWallStrategy implements IDriveStrategy {
 
 	@Override
-	public void drive(MyAutoController autoctrl) {
+	public boolean drive(MyAutoController autoctrl) {
 		// Gets what the car can see
 		HashMap<Coordinate, MapTile> currentView = autoctrl.getView();
 		
@@ -29,12 +29,12 @@ public class FindWallStrategy implements IDriveStrategy {
 				// If there is a parcel to the left turn to get it
 				autoctrl.turnLeft();
 				autoctrl.currState = State.GO_STRAIGHT;
-				return;
+				return true;
 			} else if (autoctrl.checkGoalRight(autoctrl.getOrientation(), currentView) == Goal.FINISH) {
 				// If there is a parcel to the right turn to get it
 				autoctrl.turnRight();
 				autoctrl.currState = State.GO_STRAIGHT;
-				return;
+				return true;
 			}
 		} else {
 			// don't have enough parcels and see one so go straight to parcel instead of wall
@@ -46,11 +46,11 @@ public class FindWallStrategy implements IDriveStrategy {
 				if (autoctrl.checkParcelAhead(newOrientation, currentView)) {
 					// if there is a parcel directly ahead after turning go into find wall mode
 					autoctrl.currState = State.FIND_WALL;
-					return;
+					return true;
 				} else {
 					// otherwise go into get parcel mode
 					autoctrl.currState = State.GET_PARCEL;
-					return;
+					return true;
 				}
 			} else if (autoctrl.checkGoalRight(autoctrl.getOrientation(), currentView) == Goal.PARCEL) {
 				// If there is a parcel to the right turn to get it and get new orientation after turning;
@@ -60,14 +60,15 @@ public class FindWallStrategy implements IDriveStrategy {
 				if (autoctrl.checkParcelAhead(newOrientation, currentView)) {
 					// if there is a parcel directly ahead after turning go into find wall mode
 					autoctrl.currState = State.FIND_WALL;
-					return;
+					return true;
 				} else {
 					// otherwise go into get parcel mode
 					autoctrl.currState = State.GET_PARCEL;
-					return;
+					return true;
 				}
 			}
 		}
+
 		
 		// Already following wall
 		if(autoctrl.checkObstacleLeft(autoctrl.getOrientation(), currentView)) {
@@ -80,10 +81,10 @@ public class FindWallStrategy implements IDriveStrategy {
 			
 			if (autoctrl.numParcelsFound() == autoctrl.numParcels()) {
 				autoctrl.currState = State.FIND_FINISH;
-				return;
+				return true;
 			} else {
 				autoctrl.currState = State.FIND_PARCEL;
-				return;
+				return true;
 			}
 		}
 		
@@ -100,13 +101,14 @@ public class FindWallStrategy implements IDriveStrategy {
 				autoctrl.turnRight();
 				if (autoctrl.numParcelsFound() == autoctrl.numParcels()) {
 					autoctrl.currState = State.FIND_FINISH;
-					return;
+					return true;
 				} else {
 					autoctrl.currState = State.FIND_PARCEL;
-					return;
+					return true;
 				}
 			}
 		}
+		return false;
 	}
 
 }

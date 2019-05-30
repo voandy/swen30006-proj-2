@@ -1,5 +1,6 @@
 package mycontroller;
 
 public interface IDriveStrategy {
-	void drive(MyAutoController autoctrl);
+	// drives car, returns true if the state has changed, otherwise returns false
+	boolean drive(MyAutoController autoctrl);
 }
