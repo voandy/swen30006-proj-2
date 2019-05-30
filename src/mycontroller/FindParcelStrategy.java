@@ -18,17 +18,22 @@ public class FindParcelStrategy implements IDriveStrategy {
 		if (autoctrl.checkGoalLeft(autoctrl.getOrientation(), currentView) == Goal.PARCEL) {
 			// If there is a parcel to the left turn to get it
 			autoctrl.turnLeft();
-			autoctrl.currState = State.FIND_WALL;
+			autoctrl.currState = State.GET_PARCEL;
+			return;
 		} else if (autoctrl.checkGoalRight(autoctrl.getOrientation(), currentView) == Goal.PARCEL) {
 			// If there is a parcel to the right turn to get it
 			autoctrl.turnRight();
-			autoctrl.currState = State.FIND_WALL;
+			autoctrl.currState = State.GET_PARCEL;
+			return;
 		} else {
 			if (currentPosition.equals(autoctrl.foundWallCoord)) {
 				// we've done a complete circle, turn right to find a new wall
 				autoctrl.turnRight();
 				autoctrl.currState = State.FIND_WALL;
-			} else if(!autoctrl.checkFollowingWall(autoctrl.getOrientation(), currentView)) {
+				return;
+			}
+
+			if(!autoctrl.checkObstacleLeft(autoctrl.getOrientation(), currentView)) {
 				// If wall no longer on left, turn left
 				autoctrl.turnLeft();
 			} else {
@@ -40,6 +45,7 @@ public class FindParcelStrategy implements IDriveStrategy {
 		}
 		if (autoctrl.numParcelsFound() == autoctrl.numParcels()) {
 			autoctrl.currState = State.FIND_FINISH;
+			return;
 		}
 	}
 }

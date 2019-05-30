@@ -11,8 +11,12 @@ public class DriveStrategyFactory {
 		case "find-parcel":
 			drivingStrategy = new FindParcelStrategy();
 			break;
+		case "get-parcel":
+			drivingStrategy = new GetParcelStrategy();
+			break;
 		case "find-finish":
 			drivingStrategy = new FindFinishStrategy();
+			break;
 		}
 		return drivingStrategy;
 	}
