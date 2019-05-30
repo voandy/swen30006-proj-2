@@ -13,6 +13,7 @@ public class DriveStrategyFactory {
 		case "find-parcel":
 			compositeStrategy = new CompositeDriveStrategy();
 			compositeStrategy.add(new FindParcelStrategy());
+			compositeStrategy.add(new RandomStrategy());
 			compositeStrategy.add(new FollowWallStrategy());
 			driveStrategy = compositeStrategy;
 			break;
@@ -22,6 +23,7 @@ public class DriveStrategyFactory {
 		case "find-finish":
 			compositeStrategy = new CompositeDriveStrategy();
 			compositeStrategy.add(new FindFinishStrategy());
+			compositeStrategy.add(new RandomStrategy());
 			compositeStrategy.add(new FollowWallStrategy());
 			driveStrategy = compositeStrategy;
 			break;

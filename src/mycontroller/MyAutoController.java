@@ -34,9 +34,10 @@ public class MyAutoController extends CarController{
 		public Simulation.StrategyMode strategyMode = Simulation.StrategyMode.FUEL;
 				
 		public State currState;
-		private float initialFuel;
-		private float currFuel;
-		private float fuelThreshold;
+		public float initialFuel;
+		public float currFuel;
+		public float fuelThreshold;
+		public final int stepThreshold = 1000;
 		
 		DriveStrategyFactory strategyFactory = new DriveStrategyFactory();
 		
@@ -90,16 +91,15 @@ public class MyAutoController extends CarController{
 					}
 					break;
 				case HEALTH:
+					// running low on fuel. better to go through any traps and complete map
+					if (currFuel < fuelThreshold || currFuel <= initialFuel - stepThreshold) {
+						avoidHealth = false;
+						avoidLava = false;
+					}
 					// running low on health, will avoid lava
 					if (getHealth() <= 30) {
 						avoidLava = true;
 					} else if (getHealth() >= 100) {
-						avoidLava = false;
-					}
-					
-					// running low on fuel. better to go through any traps and complete map
-					if (currFuel < fuelThreshold) {
-						avoidHealth = false;
 						avoidLava = false;
 					}
 					break;
