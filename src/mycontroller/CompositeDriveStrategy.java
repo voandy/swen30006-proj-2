@@ -11,6 +11,7 @@ public class CompositeDriveStrategy implements IDriveStrategy {
 	}
 
 	@Override
+	// calls drive on each strategy until a state change occurs
 	public boolean drive(MyAutoController autoctrl) {
 		// run all strategies until a state change occurs
 		for (IDriveStrategy driveStrategy:driveStrategies) {

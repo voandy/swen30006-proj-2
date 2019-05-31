@@ -11,27 +11,24 @@ import world.WorldSpatial;
 public class FindWallStrategy implements IDriveStrategy {
 
 	@Override
+	// drives straight until a wall is encountered, then turns right and follows wall
 	public boolean drive(MyAutoController autoctrl) {
 		// Gets what the car can see
 		HashMap<Coordinate, MapTile> currentView = autoctrl.getView();
 		
 		// checkStateChange();
-		if(autoctrl.getSpeed() < autoctrl.CAR_MAX_SPEED){       // Need speed to turn and progress toward the exit
-			if(autoctrl.checkObstacleAhead(autoctrl.getOrientation(), currentView)) {
-				autoctrl.turnRight();
-			}
-			autoctrl.applyForwardAcceleration();   // Tough luck if there's a wall in the way
+		// Need speed to turn and progress toward the exit
+		if(autoctrl.getSpeed() < autoctrl.CAR_MAX_SPEED){
+			autoctrl.applyForwardAcceleration();
 		}
 		
 		if (autoctrl.numParcelsFound() == autoctrl.numParcels()) {
 			// See the finish and have enough parcels so just head there instead.
 			if (autoctrl.checkGoalLeft(autoctrl.getOrientation(), currentView) == Goal.FINISH) {
-				// If there is a parcel to the left turn to get it
 				autoctrl.turnLeft();
 				autoctrl.currState = State.GO_STRAIGHT;
 				return true;
 			} else if (autoctrl.checkGoalRight(autoctrl.getOrientation(), currentView) == Goal.FINISH) {
-				// If there is a parcel to the right turn to get it
 				autoctrl.turnRight();
 				autoctrl.currState = State.GO_STRAIGHT;
 				return true;

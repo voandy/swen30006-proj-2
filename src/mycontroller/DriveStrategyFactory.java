@@ -1,5 +1,6 @@
 package mycontroller;
 
+// A singleton factory dedicated to the creation of strategies/composite strategies
 public class DriveStrategyFactory {
 	
 	public IDriveStrategy getDriveStrategy(String strategyName) {

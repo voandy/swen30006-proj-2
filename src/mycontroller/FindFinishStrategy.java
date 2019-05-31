@@ -10,6 +10,7 @@ import utilities.Coordinate;
 public class FindFinishStrategy implements IDriveStrategy {
 
 	@Override
+	// Looks for finish squares in view to the left and right of the car
 	public boolean drive(MyAutoController autoctrl) {
 		// Gets what the car can see
 		HashMap<Coordinate, MapTile> currentView = autoctrl.getView();

@@ -20,9 +20,10 @@ public class MyAutoController extends CarController{
 			FIND_PARCEL, // sticking to a wall while looking for parcels
 			GET_PARCEL, // go straight until a parcel is pick-up then find wall
 			FIND_FINISH, // sticking to a wall while looking for finish
-			GO_STRAIGHT
+			GO_STRAIGHT // goes straight to finish ignoring all obstacles
 		}
 		
+		// fabricated enum used as a return type to some functions
 		public enum Goal {
 			PARCEL,
 			FINISH,
@@ -31,16 +32,18 @@ public class MyAutoController extends CarController{
 		
 		private boolean avoidLava = false;
 		private boolean avoidHealth = false;
+		
 		public Simulation.StrategyMode strategyMode = Simulation.StrategyMode.FUEL;
-				
+		private DriveStrategyFactory strategyFactory = new DriveStrategyFactory();
+	
 		public State currState;
+		
 		public float initialFuel;
 		public float currFuel;
 		public float fuelThreshold;
 		public final int stepThreshold = 1000;
 		
-		DriveStrategyFactory strategyFactory = new DriveStrategyFactory();
-		
+		// Stores location where the wall is found
 		public Coordinate foundWallCoord = new Coordinate(getPosition());
 		
 		// Car Speed to move at

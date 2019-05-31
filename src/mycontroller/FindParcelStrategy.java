@@ -11,6 +11,7 @@ import world.WorldSpatial;
 public class FindParcelStrategy implements IDriveStrategy {
 
 	@Override
+	// Looks for parcels within view to the left and right of the car and directs the car to get them
 	public boolean drive(MyAutoController autoctrl) {
 		// Gets what the car can see
 		HashMap<Coordinate, MapTile> currentView = autoctrl.getView();
